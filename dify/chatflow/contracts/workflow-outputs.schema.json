@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://inteam.local/schemas/dify-workflow-outputs.json",
+  "title": "InTeam Dify workflow outputs",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "answer_status",
+    "suggested_questions",
+    "action_suggestions",
+    "related_contact_keys"
+  ],
+  "properties": {
+    "answer_status": {
+      "type": "string",
+      "enum": ["reliable", "limited", "not_found", "blocked"]
+    },
+    "suggested_questions": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {"type": "string", "minLength": 1, "maxLength": 80}
+    },
+    "action_suggestions": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "client_key",
+          "title",
+          "reason",
+          "action_type",
+          "due_hint",
+          "topic_key",
+          "related_contact_key",
+          "source"
+        ],
+        "properties": {
+          "client_key": {"type": "string", "minLength": 1, "maxLength": 64},
+          "title": {"type": "string", "minLength": 1, "maxLength": 80},
+          "reason": {"type": "string", "minLength": 1, "maxLength": 240},
+          "action_type": {
+            "type": "string",
+            "enum": ["read", "ask", "prepare", "practice", "review", "other"]
+          },
+          "due_hint": {
+            "type": "string",
+            "enum": ["today", "within_3_days", "this_week", "no_date"]
+          },
+          "topic_key": {
+            "type": ["string", "null"],
+            "enum": [
+              "today_start",
+              "company_business",
+              "my_role",
+              "current_project",
+              "team_collaboration",
+              "common_processes",
+              null
+            ]
+          },
+          "related_contact_key": {
+            "type": ["string", "null"],
+            "maxLength": 64
+          },
+          "source": {"const": "agent_candidate"}
+        }
+      }
+    },
+    "related_contact_keys": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {"type": "string", "minLength": 1, "maxLength": 64},
+      "uniqueItems": true
+    }
+  }
+}

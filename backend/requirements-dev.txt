@@ -1,0 +1,8 @@
+-r requirements.txt
+
+pytest==9.1.1
+pytest-asyncio==1.4.0
+
+# 仅供已经停用的本地 legacy 向量链路和对应测试使用。
+# chromadb 1.5.9 存在尚无修复版本的安全公告，禁止装入 veFaaS 生产镜像。
+-r requirements-legacy.txt

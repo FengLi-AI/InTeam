@@ -1,0 +1,49 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.p12
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node and Next.js
+node_modules/
+.next/
+out/
+dist/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+
+# Runtime data
+backend/data/app.db
+backend/data/*.bak
+backend/data/records/
+backend/data/vectordb/
+*.sqlite
+*.sqlite3
+*.log
+
+# Local deployment state
+.vefaas/
+
+# MiSans is downloaded separately under its own license
+frontend/public/fonts/*.ttf
+frontend/public/fonts/*.otf
+
+# Editors and operating systems
+.DS_Store
+._*
+.idea/
+.vscode/

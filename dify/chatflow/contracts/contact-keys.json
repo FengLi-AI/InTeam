@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "contacts": [
+    {"key":"chen-mo","name":"陈默","department":"产品平台组","role":"产品平台组负责人"},
+    {"key":"lin-qiao","name":"林乔","department":"产品平台组","role":"资深产品经理 / 入职导师"},
+    {"key":"su-wan","name":"苏晚","department":"产品设计","role":"产品设计师"},
+    {"key":"zhou-ning","name":"周宁","department":"研发","role":"前端负责人"},
+    {"key":"he-chuan","name":"何川","department":"研发","role":"后端及项目技术负责人"},
+    {"key":"xu-che","name":"许澈","department":"AI 工程","role":"AI 技术负责人"},
+    {"key":"gao-yan","name":"高岩","department":"客户成功","role":"客户成功负责人"},
+    {"key":"luo-qing","name":"罗晴","department":"人力资源","role":"HRBP"},
+    {"key":"tang-wei","name":"唐玮","department":"IT 与安全","role":"IT 与安全负责人"}
+  ]
+}

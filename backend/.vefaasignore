@@ -1,0 +1,15 @@
+.env
+.env.*
+.venv/
+.vefaas/
+data/
+__pycache__/
+.pytest_cache/
+tests/
+requirements-dev.txt
+requirements-legacy.txt
+*.db
+*.bak
+*.log
+._*
+.DS_Store

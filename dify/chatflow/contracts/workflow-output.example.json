@@ -1,0 +1,20 @@
+{
+  "answer_status": "reliable",
+  "suggested_questions": [
+    "北辰计划当前有哪些风险？",
+    "我应该先找谁对齐项目范围？"
+  ],
+  "action_suggestions": [
+    {
+      "client_key": "candidate-1",
+      "title": "与导师对齐北辰计划范围",
+      "reason": "确认项目目标和非目标，减少后续理解偏差",
+      "action_type": "ask",
+      "due_hint": "within_3_days",
+      "topic_key": "current_project",
+      "related_contact_key": "lin-qiao",
+      "source": "agent_candidate"
+    }
+  ],
+  "related_contact_keys": ["lin-qiao"]
+}

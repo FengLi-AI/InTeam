@@ -1,0 +1,11 @@
+.env
+.env.*
+.vefaas/
+node_modules/
+playwright-report/
+test-results/
+e2e/
+._*
+.DS_Store
+
+# 不排除 .next/：当前 veFaaS 部署产物位于 .next/standalone。
