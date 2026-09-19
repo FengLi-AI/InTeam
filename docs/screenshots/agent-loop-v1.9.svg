@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title desc">
+<title id="title">InTeam 任务准备 Agent Loop</title><desc id="desc">用户给出目标，模型决定搜索或阅读资料，工具返回结果供模型继续判断。信息不足时澄清，可以交付时生成材料，候选行动须经用户确认。</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#64748b"/></marker></defs>
+<rect width="900" height="520" rx="16" fill="#f8fafc"/>
+<g font-family="system-ui, sans-serif" font-size="16" text-anchor="middle" fill="#172033">
+<rect x="36" y="50" width="178" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="125.0" y="82">用户给出准备目标</text>
+<rect x="322" y="50" width="200" height="52" rx="10" fill="#eef2ff" stroke="#cbd5e1"/>
+<text x="422.0" y="82">模型判断下一步</text>
+<rect x="643" y="50" width="220" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="753.0" y="82">搜索或阅读授权资料</text>
+<rect x="643" y="158" width="220" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="753.0" y="190">工具返回真实结果</text>
+<rect x="36" y="255" width="215" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="143.5" y="287">向用户澄清</text>
+<rect x="322" y="255" width="345" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="494.5" y="287">生成准备材料并说明限制</text>
+<rect x="322" y="354" width="200" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="422.0" y="386">候选行动</text>
+<rect x="643" y="354" width="220" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="753.0" y="386">正式行动与进度</text>
+<path d="M214 76 H322" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M522 76 H643" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="581" y="60" font-size="13" fill="#526078">需要资料</text>
+<path d="M753 102 V158" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M643 184 H422 V102" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="536" y="171" font-size="13" fill="#526078">依据结果继续判断</text>
+<path d="M365 102 V218 H143 V255" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="242" y="205" font-size="13" fill="#526078">任务信息不足</text>
+<path d="M36 281 H16 V129 H338 V102" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="135" y="151" font-size="13" fill="#526078">用户补充</text>
+<path d="M486 102 V255" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="585" y="232" font-size="13" fill="#526078">可以交付或资料不足</text>
+<path d="M422 307 V354" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M522 380 H643" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="581" y="364" font-size="13" fill="#526078">用户确认</text>
+<text x="450" y="466" font-size="14" fill="#526078">执行约束：资料权限 · 工具参数校验 · 最多 8 轮 / 8 次调用 / 120 秒 · 可停止</text></g></svg>
