@@ -1,42 +1,72 @@
 # InTeam
 
-面向企业内部场景的 AI 新员工入职助手。InTeam 将企业知识问答、六主题上手地图和可确认的行动计划放在同一个工作台中，帮助新员工从“提出问题”走向“完成下一步”。
+**企业知识助手与任务准备 Agent**，面向员工上手和展厅知识交付。既可以基于企业资料回答问题，也可以接收一个准备目标，自主搜索、阅读和补查资料，整理出可继续修改的准备材料。
 
 [![CI](https://github.com/FengLi-AI/InTeam/actions/workflows/ci.yml/badge.svg)](https://github.com/FengLi-AI/InTeam/actions/workflows/ci.yml)
 
-![InTeam 桌面端工作台](docs/screenshots/workspace-desktop.png)
+[在线体验（需邀请码）](https://sfvkljsfbadvdk8ub5h00.apigateway-cn-beijing.volceapi.com/) · [v1.9 能力说明与验证记录](docs/agent-release-v1.9.md)
 
-## 本次更新
+![InTeam 任务准备 Agent：标题栏切换模式、展厅讲解与企业上手场景、自适应输入框](docs/screenshots/task-agent-desktop-v1.9.png)
 
-新增“任务准备 Agent”：可以准备展厅讲解和企业上手材料。模型自主选择搜索、读取资料或补查，再整理结果；可以追加要求、中止、查看历史和工具执行记录。候选行动仍需用户确认。
+## 两种使用方式
 
-标题栏切换企业问答与任务准备；两种模式共用自适应输入框。结果说明已生成的材料，以及还需补充的任务信息或核实的事实。
+| 模式 | 你可以这样问 | InTeam 做什么 |
+|---|---|---|
+| 企业问答 | “报销和权限申请分别用哪个系统？” | 通过 Dify RAG（检索企业资料后回答）查找依据，提供回答、追问和候选行动。 |
+| 任务准备 Agent | “为中学生准备 5 分钟能源展厅讲解，附操作注意事项。” | 模型自主决定搜索、阅读全文或补查，整理讲解材料、资料依据及待核实事项。 |
+| 任务准备 Agent | “整理 AI 产品经理入职第一周的准备清单。” | 从岗位、流程和项目资料中整理准备材料，并支持继续追加要求。 |
 
-任务准备使用独立的后端 Agent Loop（模型选择工具、读取真实结果，再决定下一步）；企业问答继续使用 Dify。二者共用行动管理，但不混用执行循环。
+两种模式共用上手地图和行动计划。建议先保留为候选，用户确认后才加入正式行动。
 
-## 核心能力
+## Agent 如何运行
+
+任务准备使用后端 **Agent Loop（模型根据工具结果决定下一步的循环）**。模型可以调用 `search_knowledge`（搜索资料）和 `read_document`（阅读资料），再根据真实结果决定继续查询、向用户澄清，或生成准备材料。
+
+```mermaid
+flowchart TD
+    A[用户给出准备目标] --> B[模型判断下一步]
+    B -->|需要资料| C[搜索或阅读授权资料]
+    C --> D[工具返回真实结果]
+    D --> B
+    B -->|任务信息不足| E[向用户澄清]
+    E -->|用户补充| B
+    B -->|可以交付或资料不足| F[生成准备材料并说明限制]
+    F --> G[候选行动]
+    G -->|用户确认| H[正式行动与进度]
+```
+
+企业问答仍使用 Dify Chatflow。两个模式有各自的执行流程，任务准备的工具循环由 FastAPI 后端管理。
+
+**Agent Harness（支撑模型执行任务的程序机制）**包括：
+
+- **工具与权限控制**：只开放搜索、阅读工具，校验参数与用户资料权限。
+- **执行预算**：默认最多 8 轮、8 次工具调用、120 秒，支持用户中途停止。
+- **过程与历史**：查看资料查询过程、参考资料和任务记录，支持连续修改目标。
+- **依据校验**：校验引用的资料是否实际查询过；区分资料不足、任务信息待补充和现场待确认。
+- **人工确认**：模型输出准备材料与候选行动，正式行动由用户确认后写入。
+
+当前支持企业上手和展厅讲解两个场景。Agent 不会操作展厅设备、发送消息或修改企业业务系统；项目最新进展、设备实际状态等仍需相应系统或人员确认。
+
+## 工作台能力
 
 - 六主题上手地图：今日开始、公司与业务、我的岗位、当前项目、团队与协作、常用流程。
-- 企业知识问答：基于 Dify Chatflow 检索企业资料，支持多轮与流式输出。
-- 过程状态反馈：理解问题、检索知识、组织回答等阶段持续可见。
-- 候选行动：Agent 生成建议，用户确认后才加入个人计划。
-- 入职推进：今日重点、Agent 建议、我的行动和完成进度联动。
-- 回答反馈：支持“有帮助”和“没解决”，用于知识与工作流优化。
-- 响应式界面：桌面三栏、移动端单栏三入口。
+- 企业知识问答：支持多轮对话、流式回答与回答反馈。
+- 任务准备：支持场景切换、补充要求、停止、历史记录和准备材料复制。
+- 入职推进：今日重点、候选建议、我的行动和完成进度联动。
+- 响应式界面：标题栏切换两种模式；共用自适应输入框；桌面三栏、移动端单栏三入口。
 
-## 产品流程
+<details>
+<summary>查看企业问答界面</summary>
 
-~~~text
-上手地图或主动提问
-        ↓
-企业知识检索与流式回答
-        ↓
-追问建议与候选行动
-        ↓
-用户确认加入计划
-        ↓
-行动完成与主题进度联动
-~~~
+![InTeam 企业问答与可确认行动](docs/screenshots/company-qa-desktop-v1.9.png)
+
+</details>
+
+## 已完成的验证
+
+截至 2026-09-19：后端 202 项测试、前端 30 项测试通过，Lint、类型检查和生产构建通过。完成 60 道真实问答及回答规则调整后的 15 道重点复测，并验证线上登录、Agent、行动确认、停止任务和用户隔离。
+
+测试结果说明已验证的范围，不代表任意问题都能正确回答。详细问题、修复与验收记录见 [v1.9 报告](docs/agent-release-v1.9.md)。
 
 ## 技术栈
 
@@ -44,20 +74,24 @@
 |---|---|
 | 前端 | Next.js 16、React 19、TypeScript、TanStack Query |
 | 后端 | FastAPI、SQLAlchemy、Alembic、SSE |
-| AI 与 RAG | Dify Chatflow、知识检索、结构化输出 |
-| 数据 | SQLite；生产环境可替换数据库或配置对象存储备份 |
-| 测试 | Pytest、Vitest、Playwright |
+| 任务准备 Agent | 后端 Agent Loop、模型工具调用、资料权限与执行预算 |
+| 企业问答与 RAG | Dify Chatflow、混合检索、结构化输出 |
+| 数据 | SQLite、任务历史、生产环境对象存储备份 |
+| 测试 | Pytest、Vitest；仓库另含 Playwright 测试配置 |
 
 ## 项目结构
 
 ~~~text
 InTeam/
-├── backend/       FastAPI API、业务服务、数据模型、迁移和测试
-├── frontend/      Next.js 工作台、响应式交互和前端测试
-├── dify/          Chatflow DSL、提示词、契约、示例知识和 RAG Case
-├── docs/          当前 PRD 与产品截图
-├── .env.example  配置模板
-└── LICENSE        项目开源许可证
+├── backend/
+│   ├── app/services/agent/          Agent Loop、模型、工具与任务存储
+│   ├── data/agent-knowledge/        展厅资料与部署时生成的企业资料包
+│   └── ...                         API、业务服务、数据模型、迁移和测试
+├── frontend/                       问答与任务准备工作台、响应式交互
+├── dify/                           企业知识、Chatflow、提示词和 RAG 评测集
+├── docs/                           产品文档、迭代报告与截图
+├── .env.example                    配置模板
+└── LICENSE                         项目开源许可证
 ~~~
 
 ## 本地运行
@@ -96,7 +130,7 @@ DIFY_APP_API_KEY=请填写你的Dify应用APIKey
 .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
 ~~~
 
-当前代码中的邀请码入口用于演示和本地体验。企业部署时可以按照组织要求替换为 SSO、飞书 OAuth 或企业现有身份系统。
+当前版本采用邀请码登录。企业部署可按组织要求接入 SSO、飞书 OAuth 或企业现有身份系统；这些接入需要另外配置和验证。
 
 ### 2. 启动前端
 
@@ -120,11 +154,11 @@ BACKEND_URL=http://127.0.0.1:8000
 
 1. 在 Dify 中创建或导入 Chatflow。
 2. 创建公司通识、岗位与协作、项目知识三个知识库。
-3. 将 dify/knowledge-source 中的示例资料替换为企业自己的资料。
+3. 按企业实际情况维护 `dify/knowledge-source` 中的资料。
 4. 在导入的 Chatflow 中重新绑定知识库和模型。
 5. 发布 Chatflow，并把应用 API Key 写入后端环境变量。
 
-公开 DSL 位于 dify/exports/InTeam-Onboarding-Agent-v1.9-published.yml。出于安全和可移植性考虑，仓库中的知识库 ID 已清空，导入后必须重新绑定。
+公开 DSL 位于 [v1.9 工作流导出](dify/exports/InTeam-Onboarding-Agent-v1.9-published.yml)。其中知识库与模型的关联依赖原工作区，导入后必须按自己的环境重新绑定；API Key 在服务端单独配置。
 
 知识数据、工作流、模型、检索配置和企业接入方式均应根据企业要求定制。
 
@@ -164,13 +198,13 @@ npm run build
 - 不要提交任何 .env、API Key、Cookie、数据库、备份或运行日志。
 - Dify API Key、对象存储密钥和企业系统凭证只保存在服务端。
 - 发布到生产环境前，应更换会话密钥、配置允许域名、开启安全防护并完成真实 RAG 回归测试。
-- 示例知识仅用于展示数据结构和工作流，部署时应替换并按企业权限要求管理。
+- 部署时应使用经过企业确认的资料，并按企业权限要求管理访问。
 
 ## 文档
 
 - [v1.9 任务准备 Agent、检索修复与面试说明](docs/agent-release-v1.9.md)
 
-- [产品需求文档 v1.8](docs/InTeam-PRD-v1.8.md)
+- [产品需求文档 v1.8（早期需求基线，新增 Agent 见 v1.9 报告）](docs/InTeam-PRD-v1.8.md)
 - [Dify 资产说明](dify/README.md)
 - [Dify Chatflow 说明](dify/chatflow/README.md)
 - [Dify 知识库配置](dify/Dify知识库配置与导入说明.md)
@@ -181,7 +215,7 @@ npm run build
 
 React Bits 衍生组件使用 MIT + Commons Clause，详见 [第三方声明](THIRD_PARTY_NOTICES.md)。MiSans 字体不随仓库分发，使用者需自行从官方渠道下载并遵守其许可。
 
-## 任务准备配置
+## 配置任务准备 Agent
 
 在服务端 `.env` 配置 `AGENT_ENABLED=true`、`AGENT_BASE_URL`、`AGENT_API_KEY`、`AGENT_MODEL`。可使用已接入的兼容 OpenAI 工具调用接口的模型；密钥不能放到前端。执行默认最多 8 轮、8 次工具调用、120 秒，超限会明确停止。
 
