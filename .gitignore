@@ -47,3 +47,7 @@ frontend/public/fonts/*.otf
 ._*
 .idea/
 .vscode/
+
+.local/
+backend/data/*.db-*
+backend/data/agent-knowledge/company/

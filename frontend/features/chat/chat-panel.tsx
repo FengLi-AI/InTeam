@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowUp, Bot, CheckCircle2, LoaderCircle, MessageSquareText, RotateCcw, Square, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ArrowUp, Bot, CheckCircle2, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { BorderGlow, FoldText, ShinyText, TextType } from "@/features/effects/motion-primitives";
+import { FoldText, ShinyText } from "@/features/effects/motion-primitives";
 import { useScrollAffordance } from "@/features/workspace/use-scroll-affordance";
 import { ApiError } from "@/lib/api/client";
 import type { ChatDoneEvent, Message } from "@/lib/api/types";
@@ -12,6 +12,7 @@ import { sendFeedback, stopChat } from "@/lib/api/workspace";
 import { ChatStreamError, streamChat } from "@/lib/stream/sse";
 
 import { MarkdownMessage } from "./markdown-message";
+import { MessageComposer } from "./message-composer";
 
 type ChatPanelProps = {
   externalQuestion?: { id: number; text: string } | null;
@@ -34,8 +35,6 @@ export function ChatPanel({ externalQuestion, onAnswerComplete }: ChatPanelProps
   const [loading, setLoading] = useState(false);
   const [stopping, setStopping] = useState(false);
   const [phase, setPhase] = useState("connecting");
-  const [composerFocused, setComposerFocused] = useState(false);
-  const [composerHeight, setComposerHeight] = useState(56);
   const [noteDraft, setNoteDraft] = useState("");
   const scroll = useScrollAffordance();
   const scrollRef = scroll.ref;
@@ -51,31 +50,6 @@ export function ChatPanel({ externalQuestion, onAnswerComplete }: ChatPanelProps
   const playbackIndexRef = useRef<number | null>(null);
   const renderedTextRef = useRef("");
   const playbackWaitersRef = useRef<Array<() => void>>([]);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const composerFrameRef = useRef<number | null>(null);
-
-  useLayoutEffect(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    if (composerFrameRef.current !== null) window.cancelAnimationFrame(composerFrameRef.current);
-    const currentHeight = textarea.getBoundingClientRect().height || 56;
-    const inlineTransition = textarea.style.transition;
-    textarea.style.transition = "none";
-    textarea.style.height = "56px";
-    const nextHeight = Math.max(56, Math.min(160, textarea.scrollHeight));
-    textarea.style.height = `${currentHeight}px`;
-    void textarea.offsetHeight;
-    textarea.style.transition = inlineTransition;
-    composerFrameRef.current = window.requestAnimationFrame(() => {
-      setComposerHeight(nextHeight);
-      textarea.style.height = `${nextHeight}px`;
-      composerFrameRef.current = null;
-    });
-    return () => {
-      if (composerFrameRef.current !== null) window.cancelAnimationFrame(composerFrameRef.current);
-    };
-  }, [input]);
-
   useEffect(() => () => {
     abortRef.current?.abort();
     if (playbackTimerRef.current) window.clearTimeout(playbackTimerRef.current);
@@ -278,7 +252,6 @@ export function ChatPanel({ externalQuestion, onAnswerComplete }: ChatPanelProps
     }
   }
 
-  const composerMultiline = composerHeight > 62;
   const phaseData = PHASES[phase] ?? PHASES.generating;
 
   return (
@@ -355,38 +328,7 @@ export function ChatPanel({ externalQuestion, onAnswerComplete }: ChatPanelProps
         </div>
       </div>
 
-      <BorderGlow className={`chat-composer-glow ${composerMultiline ? "is-multiline" : "is-single-line"}`}>
-        <div className="chat-composer">
-          <p className="composer-shortcuts"><MessageSquareText size={12} /> Enter 发送 · Shift + Enter 换行</p>
-          {!input && !composerFocused && <div className="composer-type-hint" aria-hidden="true"><TextType texts={STARTERS} /></div>}
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            onFocus={() => setComposerFocused(true)}
-            onBlur={() => setComposerFocused(false)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                ask(input);
-              }
-            }}
-            rows={1}
-            style={{ height: `${composerHeight}px` }}
-            placeholder=""
-            aria-label="向入职助手提问"
-          />
-          <button
-            className={loading ? "is-stop" : ""}
-            type="button"
-            onClick={() => loading ? void stopGenerating() : void ask(input)}
-            disabled={loading ? stopping : !input.trim()}
-            aria-label={loading ? "停止生成" : "发送问题"}
-          >
-            {loading ? (stopping ? <LoaderCircle className="spin" size={18} /> : <Square size={15} />) : <ArrowUp size={18} />}
-          </button>
-        </div>
-      </BorderGlow>
+      <MessageComposer value={input} onChange={setInput} onSubmit={() => void ask(input)} onStop={() => void stopGenerating()} busy={loading} stopping={stopping} label="向入职助手提问" sendLabel="发送问题" stopLabel="停止生成" examples={STARTERS} />
     </section>
   );
 }

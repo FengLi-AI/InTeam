@@ -52,7 +52,7 @@ class Settings:
             self._csv(
                 os.getenv(
                     "ALLOWED_SOURCE_HOSTS",
-                    "feishu.cn,open.feishu.cn",
+                    "feishu.cn,open.feishu.cn,ocn6aanx5tv1.feishu.cn",
                 )
             )
         )
@@ -79,6 +79,14 @@ class Settings:
         self.dify_read_timeout_seconds = float(
             os.getenv("DIFY_READ_TIMEOUT_SECONDS", "120")
         )
+        # Interview demo Agent: separate from the existing Dify Chatflow.
+        self.agent_enabled = self._bool(os.getenv("AGENT_ENABLED", "true" if self.app_env == "development" else "false"))
+        self.agent_api_key = os.getenv("AGENT_API_KEY", "").strip()
+        self.agent_base_url = os.getenv("AGENT_BASE_URL", self.deepseek_base_url).rstrip("/")
+        self.agent_model = os.getenv("AGENT_MODEL", "deepseek-flash").strip()
+        self.agent_max_rounds = max(1, min(12, int(os.getenv("AGENT_MAX_ROUNDS", "8"))))
+        self.agent_max_tools = max(1, min(20, int(os.getenv("AGENT_MAX_TOOLS", "8"))))
+        self.agent_timeout = max(5, min(240, float(os.getenv("AGENT_TIMEOUT_SECONDS", "120"))))
         self.knowledge_dir = Path(
             os.getenv("KNOWLEDGE_DIR", str(BACKEND_DIR / "data" / "knowledge"))
         )

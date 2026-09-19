@@ -31,7 +31,7 @@ def main() -> int:
     settings.vectordb_dir.mkdir(parents=True, exist_ok=True)
     restore_if_needed()
     subprocess.run(
-        [sys.executable, "-m", "alembic", "-c", "alembic.ini", "upgrade", "head"],
+        [sys.executable, "migrate.py", "upgrade", "head"],
         cwd=BACKEND_DIR,
         check=True,
     )

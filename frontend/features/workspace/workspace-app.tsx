@@ -8,7 +8,8 @@ import { type CSSProperties, useEffect, useState } from "react";
 import { clearLegacyToken } from "@/app/lib/auth";
 import { ActionPlanPanel } from "@/features/actions/action-plan-panel";
 import { InviteLogin } from "@/features/auth/invite-login";
-import { ChatPanel } from "@/features/chat/chat-panel";
+import { AssistantPanel, AssistantModes, type AssistantMode } from "@/features/agent/assistant-panel";
+import { getAgentConfig } from "@/features/agent/api";
 import { AeroShardsLayer, AuroraLayer } from "@/features/effects/motion-primitives";
 import { OnboardingMapPanel } from "@/features/onboarding/onboarding-map-panel";
 import type { ActionItem, AgentSuggestion, OnboardingStatus } from "@/lib/api/types";
@@ -39,6 +40,7 @@ type PlanOperation =
 
 export function WorkspaceApp() {
   const queryClient = useQueryClient();
+  const [assistantMode, setAssistantMode] = useState<AssistantMode>("chat");
   const [loginError, setLoginError] = useState("");
   const [mobileSection, setMobileSection] = useState<MobileSection>("chat");
   const [externalQuestion, setExternalQuestion] = useState<{ id: number; text: string } | null>(null);
@@ -47,6 +49,9 @@ export function WorkspaceApp() {
 
   const meQuery = useQuery({ queryKey: queryKeys.me, queryFn: getCurrentUser, staleTime: Infinity, retry: false });
   const authenticated = Boolean(meQuery.data);
+  const agentConfig = useQuery({ queryKey: ["agent-config"], queryFn: getAgentConfig, enabled: authenticated, retry: false });
+  const agentEnabled = agentConfig.data?.enabled !== false;
+  const visibleMode = agentEnabled ? assistantMode : "chat";
   const mapQuery = useQuery({ queryKey: queryKeys.onboardingMap, queryFn: getOnboardingMap, enabled: authenticated });
   const actionsQuery = useQuery({ queryKey: queryKeys.actions, queryFn: getActionPlan, enabled: authenticated });
 
@@ -111,6 +116,7 @@ export function WorkspaceApp() {
   function askFromMap(question: string, topicKey: string) {
     const topic = mapQuery.data?.find((item) => item.topic_key === topicKey);
     if (topic?.status === "not_started") statusMutation.mutate({ topicKey, status: "exploring" });
+    setAssistantMode("chat");
     setExternalQuestion({ id: Date.now(), text: question });
     setMobileSection("chat");
   }
@@ -142,7 +148,9 @@ export function WorkspaceApp() {
       style={{ "--map-size": `${mapWidth}px`, "--plan-size": `${planWidth}px` } as CSSProperties}
     >
       <div className="workspace-effects"><AuroraLayer /><AeroShardsLayer /></div>
-      <WorkspaceHeader user={meQuery.data} onLogout={() => logoutMutation.mutate()} />
+      <WorkspaceHeader user={meQuery.data} onLogout={() => logoutMutation.mutate()}>
+        <AssistantModes mode={visibleMode} agentEnabled={agentEnabled} onChange={(mode) => { setAssistantMode(mode); setMobileSection("chat"); }} />
+      </WorkspaceHeader>
       <div className="workspace-grid">
         <OnboardingMapPanel
           items={mapQuery.data ?? []}
@@ -156,7 +164,9 @@ export function WorkspaceApp() {
 
         <div className="center-panel">
           <div className="chat-mobile-view">
-            <ChatPanel
+            <AssistantPanel
+              mode={visibleMode}
+              agentEnabled={agentEnabled}
               externalQuestion={externalQuestion}
               onAnswerComplete={() => {
                 void queryClient.invalidateQueries({ queryKey: queryKeys.actions });

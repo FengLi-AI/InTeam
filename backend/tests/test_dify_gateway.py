@@ -513,3 +513,19 @@ def test_secure_environment_requires_https_dify_url(monkeypatch) -> None:
 
     with pytest.raises(ValueError, match="HTTPS"):
         Settings()
+
+
+def test_empty_retrieval_blocks_fabricated_stream_and_action_suggestions():
+    from app.services.dify.events import DifyEvent, normalize_chatflow_events
+    events = [
+        DifyEvent("node_finished", {"data":{"node_type":"knowledge-retrieval","status":"succeeded","outputs":{"result":[]}}}),
+        DifyEvent("message", {"answer":"报销使用合思，权限使用飞书。"}),
+        DifyEvent("message_replace", {"answer":"报销使用合思。"}),
+        DifyEvent("workflow_finished", {"data":{"status":"succeeded","outputs":{"answer_status":"reliable","action_suggestions":[],"suggested_questions":[],"related_contact_keys":[]}}}),
+    ]
+    result = list(normalize_chatflow_events(events))
+    assert not any(e.type == "chunk" for e in result)
+    assert result[-1].data["answer_status"] == "not_found"
+    assert result[-1].data["action_suggestions"] == []
+    assert "无法确认" in result[-1].data["answer"]
+    assert all("合思" not in str(e.data) for e in result)

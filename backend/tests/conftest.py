@@ -22,6 +22,8 @@ from app.services.dify.tasks import task_registry
 def _offline_external_deps(monkeypatch, tmp_path):
     # 清空外部依赖配置
     monkeypatch.setattr(config.settings, "deepseek_api_key", "")
+    monkeypatch.setattr(config.settings, "agent_api_key", "")
+    monkeypatch.setattr(config.settings, "agent_enabled", True)
     monkeypatch.setattr(config.settings, "chat_provider", "legacy")
     monkeypatch.setattr(config.settings, "dify_app_api_key", "")
     monkeypatch.setattr(config.settings, "ark_api_key", "")

@@ -2,9 +2,17 @@
 
 面向企业内部场景的 AI 新员工入职助手。InTeam 将企业知识问答、六主题上手地图和可确认的行动计划放在同一个工作台中，帮助新员工从“提出问题”走向“完成下一步”。
 
-[![CI](https://github.com/qq204407676-source/InTeam/actions/workflows/ci.yml/badge.svg)](https://github.com/qq204407676-source/InTeam/actions/workflows/ci.yml)
+[![CI](https://github.com/FengLi-AI/InTeam/actions/workflows/ci.yml/badge.svg)](https://github.com/FengLi-AI/InTeam/actions/workflows/ci.yml)
 
 ![InTeam 桌面端工作台](docs/screenshots/workspace-desktop.png)
+
+## 本次更新
+
+新增“任务准备 Agent”：可以准备展厅讲解和企业上手材料。模型自主选择搜索、读取资料或补查，再整理结果；可以追加要求、中止、查看历史和工具执行记录。候选行动仍需用户确认。
+
+标题栏切换企业问答与任务准备；两种模式共用自适应输入框。结果说明已生成的材料，以及还需补充的任务信息或核实的事实。
+
+任务准备使用独立的后端 Agent Loop（模型选择工具、读取真实结果，再决定下一步）；企业问答继续使用 Dify。二者共用行动管理，但不混用执行循环。
 
 ## 核心能力
 
@@ -83,7 +91,7 @@ DIFY_APP_API_KEY=请填写你的Dify应用APIKey
 初始化数据库并生成一个本地体验入口：
 
 ~~~bash
-.venv/bin/alembic upgrade head
+.venv/bin/python migrate.py upgrade head
 .venv/bin/python cli_invite.py generate --count 1 --note "local development"
 .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
 ~~~
@@ -116,7 +124,7 @@ BACKEND_URL=http://127.0.0.1:8000
 4. 在导入的 Chatflow 中重新绑定知识库和模型。
 5. 发布 Chatflow，并把应用 API Key 写入后端环境变量。
 
-公开 DSL 位于 dify/exports/InTeam-Onboarding-Agent-v1.6-published.yml。出于安全和可移植性考虑，仓库中的知识库 ID 已清空，导入后必须重新绑定。
+公开 DSL 位于 dify/exports/InTeam-Onboarding-Agent-v1.9-published.yml。出于安全和可移植性考虑，仓库中的知识库 ID 已清空，导入后必须重新绑定。
 
 知识数据、工作流、模型、检索配置和企业接入方式均应根据企业要求定制。
 
@@ -160,6 +168,8 @@ npm run build
 
 ## 文档
 
+- [v1.9 任务准备 Agent、检索修复与面试说明](docs/agent-release-v1.9.md)
+
 - [产品需求文档 v1.8](docs/InTeam-PRD-v1.8.md)
 - [Dify 资产说明](dify/README.md)
 - [Dify Chatflow 说明](dify/chatflow/README.md)
@@ -170,3 +180,15 @@ npm run build
 项目自有代码采用 [MIT License](LICENSE)。
 
 React Bits 衍生组件使用 MIT + Commons Clause，详见 [第三方声明](THIRD_PARTY_NOTICES.md)。MiSans 字体不随仓库分发，使用者需自行从官方渠道下载并遵守其许可。
+
+## 任务准备配置
+
+在服务端 `.env` 配置 `AGENT_ENABLED=true`、`AGENT_BASE_URL`、`AGENT_API_KEY`、`AGENT_MODEL`。可使用已接入的兼容 OpenAI 工具调用接口的模型；密钥不能放到前端。执行默认最多 8 轮、8 次工具调用、120 秒，超限会明确停止。
+
+本地公司资料读取自 `dify/knowledge-source/`，展厅资料位于 `backend/data/agent-knowledge/exhibition/`。单独部署后端前，在项目根目录执行：
+
+```bash
+python backend/scripts/package_knowledge.py
+```
+
+它只打包知识文件，运行数据库和私有配置必须单独保存。生产环境需要显式配置 `ALLOW_ALL_AUTHENTICATED_DOCS` 或用户文档 ACL（谁能访问哪些资料）。

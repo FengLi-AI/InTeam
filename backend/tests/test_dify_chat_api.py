@@ -70,6 +70,8 @@ def test_chat_route_uses_dify_and_keeps_user_scoped_conversation(
         "/api/v1/chat", json={"question": "继续介绍", "session_id": "web"}
     )
 
+    assert first.headers["content-encoding"] == "identity"
+    assert "no-transform" in first.headers["cache-control"]
     assert first.status_code == 200
     assert second.status_code == 200
     assert calls == [None, "dify-conversation-1"]

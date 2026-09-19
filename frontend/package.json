@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "start:local": "node scripts/start-local.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.102.8",

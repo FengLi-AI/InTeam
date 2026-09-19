@@ -1,8 +1,9 @@
 # InTeam Chatflow 蓝图
 
-> 版本：v1.1
-> 状态：已于 2026-09-01 发布并完成真实 Service API 验证
-> 回滚文件：`../exports/InTeam-Onboarding-Agent-v1.6-published.yml`
+> 版本：v1.9
+> 状态：2026-09-19 检索修复；验证结果见 `../../docs/agent-release-v1.9.md`
+> 当前导出：`../exports/InTeam-Onboarding-Agent-v1.9-published.yml`
+> 历史回滚文件：`../exports/InTeam-Onboarding-Agent-v1.6-published.yml`
 
 ## 1. 应用类型
 
@@ -29,7 +30,7 @@ P0 当前采用已验证的最小 Chatflow，不把规划中的复杂路由一�
 
 - `企业知识回答`：Aihubmix 的 `DeepSeek V4 Flash`，负责员工可见正文。
 - `结构化建议`：Aihubmix 的 `DeepSeek V4 Flash`，开启 Structured Output，负责追问和候选行动。
-- Embedding 与 Rerank 使用 Aihubmix 的千问模型；不消耗 Dify 平台自带模型额度。
+- Embedding 使用 AI Hub Mix 的 `qwen3-embedding-4b`；当前使用语义 0.7 / 关键词 0.3 的权重排序，不调用外部 Rerank 模型。召回上限为 20，关闭分数阈值，适用于当前的小规模资料库。
 - `回复用户` 先于结构化建议执行，附加建议异常时正文仍可正常完成。
 
 以下节点表是后续按评测结果逐步扩展的目标蓝图，而不是当前线上节点清单。

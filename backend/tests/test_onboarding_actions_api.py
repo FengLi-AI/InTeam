@@ -223,3 +223,13 @@ def test_post_compatibility_routes_cover_apig_write_operations(auth_client) -> N
     deleted = auth_client.post(f"/api/v1/actions/{action_id}/delete")
     assert deleted.status_code == 200
     assert auth_client.get("/api/v1/actions").json()["actions"] == []
+
+
+def test_whitespace_action_title_cannot_erase_existing_action(auth_client):
+    created = auth_client.post("/api/v1/actions", json={"title":"准备评审材料"})
+    action_id = created.json()["item"]["id"]
+    for title in [" ", "\n\t", "　"]:
+        assert auth_client.patch(f"/api/v1/actions/{action_id}", json={"title":title}).status_code == 422
+        assert auth_client.post("/api/v1/actions", json={"title":title}).status_code == 422
+    plan = auth_client.get("/api/v1/actions").json()
+    assert plan["actions"][0]["title"] == "准备评审材料"

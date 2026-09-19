@@ -17,7 +17,12 @@ class ActionCreateRequest(BaseModel):
     @field_validator("title")
     @classmethod
     def strip_title(cls, value: str | None) -> str | None:
-        return value.strip() if value is not None else None
+        if value is None:
+            return None
+        value = value.strip()
+        if not value:
+            raise ValueError("title must not be blank")
+        return value
 
     @field_validator("due_date")
     @classmethod
@@ -44,7 +49,12 @@ class ActionUpdateRequest(BaseModel):
     @field_validator("title")
     @classmethod
     def strip_title(cls, value: str | None) -> str | None:
-        return value.strip() if value is not None else None
+        if value is None:
+            return None
+        value = value.strip()
+        if not value:
+            raise ValueError("title must not be blank")
+        return value
 
     @field_validator("due_date")
     @classmethod

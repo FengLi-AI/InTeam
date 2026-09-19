@@ -61,6 +61,8 @@ def normalize_chatflow_events(events: Iterable[DifyEvent]) -> Iterator[InTeamStr
     structured_metadata: WorkflowOutputs | None = None
     structured_metadata_failed = False
     finished = False
+    retrieval_seen = False
+    retrieval_count = 0
 
     for item in events:
         payload = item.payload
@@ -87,14 +89,14 @@ def normalize_chatflow_events(events: Iterable[DifyEvent]) -> Iterator[InTeamStr
                 yield _status("generating")
             continue
 
-        if item.event == "message":
+        if item.event == "message" and not (retrieval_seen and retrieval_count == 0):
             answer = payload.get("answer")
             if isinstance(answer, str) and answer:
                 answer_parts.append(answer)
                 yield InTeamStreamEvent(type="chunk", data={"text": answer})
             continue
 
-        if item.event == "message_replace":
+        if item.event == "message_replace" and not (retrieval_seen and retrieval_count == 0):
             answer = payload.get("answer")
             if isinstance(answer, str):
                 answer_parts = [answer]
@@ -129,6 +131,12 @@ def normalize_chatflow_events(events: Iterable[DifyEvent]) -> Iterator[InTeamStr
                 finished = True
                 yield _public_error("workflow_failed", "回答生成失败，请稍后重试")
                 return
+            if "knowledge" in str(data.get("node_type", "")) or "retriev" in str(data.get("node_type", "")):
+                retrieval_seen = True
+                node_outputs = data.get("outputs") or {}
+                records = node_outputs.get("result") if isinstance(node_outputs, dict) else None
+                if isinstance(records, list):
+                    retrieval_count += len(records)
             if node_title in STRUCTURED_METADATA_NODE_TITLES:
                 node_outputs = (
                     data.get("outputs") if isinstance(data.get("outputs"), dict) else {}
@@ -175,6 +183,12 @@ def normalize_chatflow_events(events: Iterable[DifyEvent]) -> Iterator[InTeamStr
                     action_suggestions=[],
                     related_contact_keys=[],
                 )
+            if retrieval_seen and retrieval_count == 0:
+                # An empty lookup cannot support company facts, regardless of model claims.
+                answer = "当前企业知识库没有检索到足够信息，我无法确认。你可以换一个更具体的问法，或向资料负责人核实。"
+                answer_parts = [answer]
+                outputs = WorkflowOutputs(answer_status="not_found", suggested_questions=[], action_suggestions=[], related_contact_keys=[])
+                yield InTeamStreamEvent(type="replace", data={"text": answer})
             yield InTeamStreamEvent(
                 type="done",
                 data={

@@ -49,9 +49,9 @@ SPECS = {
                     {"id": "remove_urls_emails", "enabled": False},
                 ],
                 "segmentation": {
-                    "separator": "\n\n",
-                    "max_tokens": 450,
-                    "chunk_overlap": 40,
+                    "separator": "\n---\n",
+                    "max_tokens": 2000,
+                    "chunk_overlap": 0,
                 },
             },
         },
@@ -59,7 +59,7 @@ SPECS = {
     "project": KnowledgeBaseSpec(
         key="project",
         name="InTeam-项目知识库",
-        description="InTeam 演示企业北辰计划的背景、模块、术语、里程碑、风险和发布规则。",
+        description="InTeam 北辰计划的背景、模块、术语、里程碑、风险和发布规则。",
         source_dir=DIFY_DIR / "knowledge-source" / "project",
         doc_form="hierarchical_model",
         process_rule={
@@ -69,10 +69,10 @@ SPECS = {
                     {"id": "remove_extra_spaces", "enabled": True},
                     {"id": "remove_urls_emails", "enabled": False},
                 ],
-                "parent_mode": "paragraph",
+                "parent_mode": "full-doc",
                 "segmentation": {
                     "separator": "\n\n",
-                    "max_tokens": 900,
+                    "max_tokens": 2000,
                     "chunk_overlap": 0,
                 },
                 "subchunk_segmentation": {

@@ -10,6 +10,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .api import (
     actions,
+    agent,
     auth,
     chat,
     contacts,
@@ -40,6 +41,8 @@ if settings.sentry_dsn:
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     """表结构由 Alembic 管理；启动只执行幂等的演示同事种子。"""
+    from .services.agent.storage import recover_interrupted
+    recover_interrupted()
     seed_contacts()
     backup_worker.start()
     try:
@@ -72,6 +75,7 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(contacts.router, prefix="/api/v1")
 app.include_router(todos.router, prefix="/api/v1")
 app.include_router(actions.router, prefix="/api/v1")
+app.include_router(agent.router, prefix="/api/v1")
 app.include_router(onboarding.router, prefix="/api/v1")
 app.include_router(dashboard.router, prefix="/api/v1")
 app.include_router(docs.router, prefix="/api/v1")

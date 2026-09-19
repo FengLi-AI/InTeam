@@ -2,21 +2,24 @@
 
 import { LogOut } from "lucide-react";
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 import type { UserInfo } from "@/lib/api/types";
 
 type WorkspaceHeaderProps = {
   user: UserInfo;
   onLogout: () => void;
+  children?: ReactNode;
 };
 
-export function WorkspaceHeader({ user, onLogout }: WorkspaceHeaderProps) {
+export function WorkspaceHeader({ user, onLogout, children }: WorkspaceHeaderProps) {
   return (
     <header className="workspace-header">
       <div className="workspace-brand">
         <Image className="workspace-logo" src="/brand/inteam-logo.svg" alt="InTeam" width={118} height={32} priority />
         <span className="company-badge">星澜科技</span>
       </div>
+      {children}
       <div className="workspace-user">
         <span className="onboard-day">AI 新员工入职助手</span>
         <span className="user-avatar">{user.name.slice(0, 1)}</span>

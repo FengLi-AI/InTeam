@@ -1,7 +1,6 @@
 """请求体、来源校验、请求 ID 与安全响应头。"""
 from __future__ import annotations
 
-import asyncio
 import logging
 import time
 import uuid
@@ -63,10 +62,9 @@ class RequestBodyLimitMiddleware:
         async def limited_receive() -> Message:
             nonlocal replayed
             if replayed:
-                # 保持与真实 ASGI receive 一致：客户端未断开时应阻塞，
-                # 否则 StreamingResponse 会把伪造的 disconnect 当成立即取消。
-                await asyncio.Event().wait()
-                raise RuntimeError("unreachable")
+                # Forward the real disconnect signal so an interrupted Agent stream
+                # cancels its model request. Never fabricate a disconnect here.
+                return await receive()
             replayed = True
             return {"type": "http.request", "body": b"".join(body_parts), "more_body": False}
 

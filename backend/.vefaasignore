@@ -2,7 +2,10 @@
 .env.*
 .venv/
 .vefaas/
-data/
+data/app.db
+data/*.db-*
+data/records/
+data/vectordb/
 __pycache__/
 .pytest_cache/
 tests/

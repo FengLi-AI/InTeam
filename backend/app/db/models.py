@@ -249,3 +249,20 @@ class Action(Base):
     source_suggestion_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     completed_ts: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class AgentRun(Base):
+    """用户隔离的准备任务，保留真实执行事件与结构化成果。"""
+
+    __tablename__ = "agent_runs"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    scenario: Mapped[str] = mapped_column(String(24), nullable=False)
+    question: Mapped[str] = mapped_column(Text, nullable=False)
+    parent_run_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    status: Mapped[str] = mapped_column(String(24), default="running")
+    events_json: Mapped[str] = mapped_column(Text, default="[]")
+    result_json: Mapped[str] = mapped_column(Text, default="{}")
+    model: Mapped[str] = mapped_column(String(128), default="")
+    created_ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    finished_ts: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
